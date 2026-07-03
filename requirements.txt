@@ -1,0 +1,38 @@
+# Django Core
+Django==5.2.15
+djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.0
+django-cors-headers==4.7.0
+django-environ==0.12.0
+django-filter==25.1
+
+# Database
+psycopg2-binary==2.9.10
+django-storages==1.14.5
+boto3==1.37.0
+
+# Documentation
+drf-yasg==1.21.10
+
+# Media & Images
+Pillow==11.3.0
+django-ckeditor==6.7.3
+django-cleanup==9.0.0
+
+# Async & Cache
+celery==5.5.1
+redis==5.3.1
+django-celery-beat==2.9.0
+django-redis==5.4.0
+
+# Utils
+python-dotenv==1.2.2
+django-import-export==4.4.1
+django-debug-toolbar==4.4.6
+django-extensions==3.2.3
+
+# Production
+gunicorn==23.0.0
+
+# Geolocation
+geopy==2.4.1
