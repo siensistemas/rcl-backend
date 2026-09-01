@@ -1,5 +1,6 @@
 ﻿from django.db import models
 from apps.businesses.models import Business
+from shared.tenant import TenantManager, get_tenant_upload_to
 
 class Promotion(models.Model):
     STATUS_CHOICES = (
@@ -17,6 +18,9 @@ class Promotion(models.Model):
         ('free_shipping', 'Envio Gratis'),
     )
     
+    objects = TenantManager()
+    all_objects = models.Manager()
+
     business = models.ForeignKey(
         Business,
         on_delete=models.CASCADE,
@@ -28,9 +32,9 @@ class Promotion(models.Model):
     subtitle = models.CharField('Subtitulo', max_length=200, blank=True)
     description = models.TextField('Descripcion')
     
-    # Media
-    image = models.ImageField('Imagen', upload_to='promotions/images/%Y/%m/%d/', blank=True, null=True)
-    video = models.FileField('Video', upload_to='promotions/videos/%Y/%m/%d/', blank=True, null=True)
+    # Media (por tenant, via business)
+    image = models.ImageField('Imagen', upload_to=get_tenant_upload_to('promotions/images'), blank=True, null=True)
+    video = models.FileField('Video', upload_to=get_tenant_upload_to('promotions/videos'), blank=True, null=True)
     gallery = models.JSONField('Galeria', default=list)
     
     # Validity

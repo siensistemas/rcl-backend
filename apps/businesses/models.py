@@ -4,16 +4,20 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.tenants.models import Municipality
 from apps.users.models import User
 from apps.categories.models import Category
+from shared.tenant import TenantManager, get_tenant_upload_to
 
 class Business(models.Model):
+    objects = TenantManager()
+    all_objects = models.Manager()
+
     # Basic Info
     name = models.CharField('Nombre', max_length=200)
     slug = models.SlugField('Slug', max_length=200, unique=True, blank=True)
     short_name = models.CharField('Nombre Corto', max_length=50, blank=True)
     
-    # Media
-    logo = models.ImageField('Logo', upload_to='businesses/logos/', blank=True, null=True)
-    cover = models.ImageField('Portada', upload_to='businesses/covers/', blank=True, null=True)
+    # Media (por tenant)
+    logo = models.ImageField('Logo', upload_to=get_tenant_upload_to('businesses/logos'), blank=True, null=True)
+    cover = models.ImageField('Portada', upload_to=get_tenant_upload_to('businesses/covers'), blank=True, null=True)
     
     # Description
     description = models.TextField('Descripcion')
@@ -232,14 +236,17 @@ class BusinessMedia(models.Model):
         ('reel', 'Reel'),
     )
     
+    objects = TenantManager()
+    all_objects = models.Manager()
+
     business = models.ForeignKey(
         Business,
         on_delete=models.CASCADE,
         related_name='media'
     )
     media_type = models.CharField('Tipo', max_length=10, choices=MEDIA_TYPES)
-    file = models.FileField('Archivo', upload_to='businesses/media/%Y/%m/%d/')
-    thumbnail = models.ImageField('Miniatura', upload_to='businesses/thumbnails/', blank=True, null=True)
+    file = models.FileField('Archivo', upload_to=get_tenant_upload_to('businesses/media'))
+    thumbnail = models.ImageField('Miniatura', upload_to=get_tenant_upload_to('businesses/thumbnails'), blank=True, null=True)
     title = models.CharField('Titulo', max_length=200, blank=True)
     description = models.TextField('Descripcion', blank=True)
     is_cover = models.BooleanField('Portada', default=False)
@@ -269,6 +276,9 @@ class BusinessHours(models.Model):
         ('sunday', 'Domingo'),
     )
     
+    objects = TenantManager()
+    all_objects = models.Manager()
+
     business = models.ForeignKey(
         Business,
         on_delete=models.CASCADE,

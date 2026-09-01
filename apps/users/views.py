@@ -10,11 +10,24 @@ from .serializers import (
     UserSerializer, UserRegistrationSerializer, UserLoginSerializer,
     UserUpdateSerializer, UserChangePasswordSerializer
 )
+from shared.tenant import resolve_tenant_for_user
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
-    
+
+    def get_queryset(self):
+        user = self.request.user
+        # Solo administradores ven listados; un user normal solo se ve a si mismo
+        if not user.is_authenticated:
+            return User.objects.none()
+        if user.role == 'global_admin':
+            return User.objects.all()
+        if user.role in ('municipal_admin', 'moderator', 'merchant', 'employee'):
+            tenant = resolve_tenant_for_user(user)
+            if tenant is not None:
+                return User.objects.filter(municipality=tenant)
+        return User.objects.filter(id=user.id)
+
     def get_permissions(self):
         if self.action in ['register', 'login', 'verify_email']:
             return [permissions.AllowAny()]

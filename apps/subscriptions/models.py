@@ -1,5 +1,6 @@
 ﻿from django.db import models
 from apps.tenants.models import Municipality
+from shared.tenant import TenantManager
 
 class Plan(models.Model):
     PLAN_TYPES = (
@@ -9,6 +10,9 @@ class Plan(models.Model):
         ('premium', 'Premium'),
         ('enterprise', 'Empresarial'),
     )
+
+    objects = TenantManager()
+    all_objects = models.Manager()
     
     name = models.CharField('Nombre', max_length=100)
     plan_type = models.CharField('Tipo', max_length=20, choices=PLAN_TYPES, unique=True)
@@ -85,6 +89,9 @@ class Subscription(models.Model):
         ('cancelled', 'Cancelada'),
         ('pending', 'Pendiente'),
     )
+
+    objects = TenantManager()
+    all_objects = models.Manager()
     
     business = models.ForeignKey(
         'businesses.Business',

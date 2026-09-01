@@ -1,14 +1,18 @@
 ﻿from django.db import models
 from django.utils.text import slugify
 from apps.tenants.models import Municipality
+from shared.tenant import TenantManager, get_tenant_upload_to
 
 class Category(models.Model):
+    objects = TenantManager()
+    all_objects = models.Manager()
+
     name = models.CharField('Nombre', max_length=100)
     slug = models.SlugField('Slug', max_length=100, unique=True, blank=True)
     description = models.TextField('Descripcion', blank=True)
     icon = models.CharField('Icono (FontAwesome)', max_length=50, default='fa-store')
     icon_color = models.CharField('Color del Icono', max_length=7, default='#2563eb')
-    image = models.ImageField('Imagen', upload_to='categories/', blank=True, null=True)
+    image = models.ImageField('Imagen', upload_to=get_tenant_upload_to('categories'), blank=True, null=True)
     
     parent = models.ForeignKey(
         'self',

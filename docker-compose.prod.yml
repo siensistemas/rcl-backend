@@ -4,52 +4,56 @@ services:
   db:
     image: postgis/postgis:15-3.4
     container_name: busca_me_db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: busca_me_db
       POSTGRES_USER: busca_me_user
-      POSTGRES_PASSWORD: busca_me_password
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=es_CO.UTF-8'
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - busca_me_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U busca_me_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     container_name: busca_me_redis
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
     networks:
       - busca_me_network
 
-backend:
+  backend:
     build: .
     container_name: busca_me_backend
-    command: python manage.py runserver 0.0.0.0:8000
+    restart: unless-stopped
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
     environment:
       - RUN_INIT=1
     volumes:
-      - .:/app
-      - static_volume:/app/static
-      - media_volume:/app/media
-    ports:
-      - "8000:8000"
+      - ./static:/app/static
+      - ./media:/app/media
     env_file:
       - .env
+    ports:
+      - "127.0.0.1:8000:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - busca_me_network
 
   celery:
     build: .
     container_name: busca_me_celery
+    restart: unless-stopped
     command: celery -A core worker --loglevel=info
-    volumes:
-      - .:/app
     env_file:
       - .env
     depends_on:
@@ -61,9 +65,8 @@ backend:
   celery-beat:
     build: .
     container_name: busca_me_celery_beat
+    restart: unless-stopped
     command: celery -A core beat --loglevel=info
-    volumes:
-      - .:/app
     env_file:
       - .env
     depends_on:
@@ -74,8 +77,6 @@ backend:
 
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
 
 networks:
   busca_me_network:

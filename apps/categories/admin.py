@@ -1,8 +1,9 @@
 ﻿from django.contrib import admin
 from .models import Category
+from shared.admin import TenantAdminMixin
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['name', 'slug', 'municipality', 'parent', 'is_active', 'is_featured', 'order', 'total_businesses']
     list_filter = ['municipality', 'parent', 'is_active', 'is_featured']
     search_fields = ['name', 'slug', 'description']

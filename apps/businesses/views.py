@@ -6,15 +6,22 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Business, BusinessMedia, BusinessHours
 from .serializers import BusinessSerializer, BusinessCreateSerializer, BusinessUpdateSerializer, BusinessMediaSerializer
 from shared.permissions import IsMerchant, IsOwner, IsVerified
+from shared.tenant import resolve_tenant_for_user
 
 class BusinessViewSet(viewsets.ModelViewSet):
-    queryset = Business.objects.filter(is_active=True, is_approved=True)
     serializer_class = BusinessSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['municipality', 'category', 'subcategory', 'is_verified', 'is_featured', 'is_active']
     search_fields = ['name', 'description', 'address', 'neighborhood', 'short_name']
     ordering_fields = ['name', 'views_count', 'rating_average', 'created_at']
     ordering = ['-views_count', 'name']
+
+    def get_queryset(self):
+        qs = Business.objects.filter(is_active=True, is_approved=True)
+        tenant = resolve_tenant_for_user(self.request.user)
+        if tenant is not None:
+            qs = qs.filter(municipality=tenant)
+        return qs
     
     def get_permissions(self):
         if self.action in ['create']:
@@ -35,7 +42,7 @@ class BusinessViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def my_businesses(self, request):
-        businesses = Business.objects.filter(owner=request.user, is_active=True)
+        businesses = Business.all_objects.filter(owner=request.user, is_active=True)
         serializer = self.get_serializer(businesses, many=True)
         return Response(serializer.data)
     
@@ -94,7 +101,7 @@ class BusinessViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Latitud y longitud requeridas'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Simple nearby implementation (you can optimize with GIS)
-        businesses = Business.objects.filter(is_active=True, is_approved=True)
+        businesses = self.get_queryset()
         nearby = []
         for business in businesses:
             if business.latitude and business.longitude:

@@ -46,6 +46,7 @@ LOCAL_APPS = [
     'apps.businesses',
     'apps.promotions',
     'apps.subscriptions',
+    'apps.merchant',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -57,9 +58,10 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'shared.middleware.TenantMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -87,9 +89,9 @@ ASGI_APPLICATION = 'core.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='rcl_db'),
-        'USER': env('DB_USER', default='rcl_user'),
-        'PASSWORD': env('DB_PASSWORD', default='rcl_password'),
+        'NAME': env('DB_NAME', default='busca_me_db'),
+        'USER': env('DB_USER', default='busca_me_user'),
+        'PASSWORD': env('DB_PASSWORD', default='busca_me_password'),
         'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default='5432'),
         'ATOMIC_REQUESTS': True,

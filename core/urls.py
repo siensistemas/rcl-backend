@@ -8,7 +8,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="RCL API - Red Comercial Local",
+        title="Busca Me API",
         default_version='v1',
         description="""
         Plataforma SaaS Multi-Tenant para comercios locales.
@@ -26,8 +26,8 @@ schema_view = get_schema_view(
         - Analitica en tiempo real
         """,
         contact=openapi.Contact(
-            email="admin@rcl.com",
-            url="https://rcl.com"
+            email="admin@siensistemas.com",
+            url="https://www.siensistemas.com"
         ),
         license=openapi.License(
             name="MIT License",
@@ -56,6 +56,9 @@ api_v1_patterns = [
     
     # Subscriptions
     path('subscriptions/', include('apps.subscriptions.urls')),
+
+    # Merchant panel
+    path('merchant/', include('apps.merchant.urls')),
 ]
 
 urlpatterns = [

@@ -4,10 +4,17 @@ from rest_framework.response import Response
 from .models import Plan, Subscription
 from .serializers import PlanSerializer, SubscriptionSerializer
 from shared.permissions import IsGlobalAdmin, IsMerchant
+from shared.tenant import resolve_tenant_for_user
 
 class PlanViewSet(viewsets.ModelViewSet):
-    queryset = Plan.objects.filter(is_active=True)
     serializer_class = PlanSerializer
+
+    def get_queryset(self):
+        qs = Plan.objects.filter(is_active=True)
+        tenant = resolve_tenant_for_user(self.request.user)
+        if tenant is not None:
+            qs = qs.filter(municipality=tenant)
+        return qs
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -15,8 +22,14 @@ class PlanViewSet(viewsets.ModelViewSet):
         return [permissions.AllowAny()]
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
-    queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
+
+    def get_queryset(self):
+        qs = Subscription.objects.all()
+        tenant = resolve_tenant_for_user(self.request.user)
+        if tenant is not None:
+            qs = qs.filter(business__municipality=tenant)
+        return qs
     
     def get_permissions(self):
         if self.action in ['create']:

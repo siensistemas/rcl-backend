@@ -1,8 +1,10 @@
 ﻿from django.contrib import admin
 from .models import Promotion
+from shared.admin import TenantAdminMixin
 
 @admin.register(Promotion)
-class PromotionAdmin(admin.ModelAdmin):
+class PromotionAdmin(TenantAdminMixin, admin.ModelAdmin):
+    tenant_filter_path = 'business__municipality'
     list_display = ['title', 'business', 'discount_type', 'discount_value', 'status', 'start_date', 'end_date', 'is_valid']
     list_filter = ['status', 'discount_type', 'is_featured', 'business']
     search_fields = ['title', 'description', 'subtitle']

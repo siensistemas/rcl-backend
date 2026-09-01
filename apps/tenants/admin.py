@@ -1,8 +1,10 @@
 ﻿from django.contrib import admin
 from .models import Municipality
+from shared.admin import TenantAdminMixin
 
 @admin.register(Municipality)
-class MunicipalityAdmin(admin.ModelAdmin):
+class MunicipalityAdmin(TenantAdminMixin, admin.ModelAdmin):
+    tenant_filter_path = 'id'
     list_display = ['name', 'slug', 'is_active', 'is_public', 'total_businesses', 'created_at']
     list_filter = ['is_active', 'is_public', 'created_at']
     search_fields = ['name', 'slug', 'description']

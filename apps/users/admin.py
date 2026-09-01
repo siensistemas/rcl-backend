@@ -1,9 +1,12 @@
 ﻿from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User
+from shared.tenant import resolve_tenant_for_user
+from shared.admin import TenantAdminMixin
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(TenantAdminMixin, UserAdmin):
+    tenant_filter_path = 'municipality'
     list_display = ['username', 'email', 'role', 'municipality', 'is_verified', 'is_active', 'login_count']
     list_filter = ['role', 'municipality', 'is_verified', 'is_active', 'email_verified', 'phone_verified']
     fieldsets = UserAdmin.fieldsets + (

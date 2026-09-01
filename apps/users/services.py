@@ -26,7 +26,7 @@ class UserService:
     
     @staticmethod
     def send_verification_email(user, code):
-        subject = 'Verifica tu email - RCL'
+        subject = 'Verifica tu email - Busca Me'
         html_message = render_to_string('emails/verification.html', {
             'user': user,
             'code': code

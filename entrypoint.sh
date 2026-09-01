@@ -1,23 +1,37 @@
-﻿#!/bin/sh
+#!/bin/sh
 
 echo "Waiting for PostgreSQL..."
-while ! nc -z db 5432; do
+while ! nc -z ${DB_HOST:-db} ${DB_PORT:-5432}; do
   sleep 1
 done
 echo "PostgreSQL started"
 
-echo "Running migrations..."
-python manage.py makemigrations
-python manage.py migrate
+# Solo el servicio backend ejecuta inicializacion (migraciones, static, superuser).
+# Los workers (celery/celery-beat) deben levantarse sin tocar la base de datos.
+if [ "${RUN_INIT}" = "1" ]; then
+  echo "Running migrations..."
+  python manage.py migrate
 
-echo "Creating superuser..."
-python manage.py shell -c "
-from django.contrib.auth import get_user_model;
-User = get_user_model();
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@rcl.com', 'admin123')
+  echo "Collecting static files..."
+  python manage.py collectstatic --noinput
+
+  echo "Creating superuser if missing..."
+  python manage.py shell -c "
+from django.contrib.auth import get_user_model
+import os
+User = get_user_model()
+username = os.environ.get('ADMIN_USERNAME', 'admin')
+email = os.environ.get('ADMIN_EMAIL', 'admin@siensistemas.com')
+password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username, email, password)
     print('Superuser created')
+else:
+    print('Superuser already exists')
 "
+else
+  echo "RUN_INIT not set - skipping initialization"
+fi
 
 echo "Starting server..."
 exec "$@"

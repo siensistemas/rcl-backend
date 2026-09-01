@@ -1,4 +1,4 @@
-﻿# RCL Backend - Red Comercial Local
+﻿# Busca Me - Backend
 
 Plataforma SaaS Multi-Tenant para comercios locales.
 
@@ -16,7 +16,7 @@ Plataforma SaaS Multi-Tenant para comercios locales.
 ## Estructura del Proyecto
 
 \\\
-rcl-backend/
+busca-me-backend/
 â”œâ”€â”€ core/                      # Configuracion principal
 â”‚   â”œâ”€â”€ settings/
 â”‚   â”‚   â”œâ”€â”€ base.py           # Configuracion base
@@ -67,7 +67,7 @@ rcl-backend/
 
 \\\ash
 git clone <repo>
-cd rcl-backend
+cd busca-me-backend
 
 # Crear entorno virtual
 python -m venv venv
@@ -86,7 +86,7 @@ cp .env.example .env
 
 \\\ash
 # Crear base de datos PostgreSQL
-createdb -U postgres rcl_db
+createdb -U postgres busca_me_db
 
 # Migrar
 python manage.py makemigrations
@@ -113,6 +113,10 @@ docker-compose up -d
 - Swagger UI: http://localhost:8000/swagger/
 - ReDoc: http://localhost:8000/redoc/
 - OpenAPI Schema: http://localhost:8000/swagger.json
+
+## Despliegue
+
+Produccion (https://www.siensistemas.com/busca_me/): ver [deployment/DEPLOY.md](deployment/DEPLOY.md)
 
 ## Endpoints Principales
 

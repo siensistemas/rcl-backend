@@ -5,15 +5,22 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Promotion
 from .serializers import PromotionSerializer
 from shared.permissions import IsMerchant, IsOwner
+from shared.tenant import resolve_tenant_for_user
 
 class PromotionViewSet(viewsets.ModelViewSet):
-    queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['business', 'status', 'is_featured', 'discount_type']
     search_fields = ['title', 'description', 'subtitle']
     ordering_fields = ['created_at', 'start_date', 'end_date', 'views_count']
     ordering = ['-created_at']
+
+    def get_queryset(self):
+        qs = Promotion.objects.all()
+        tenant = resolve_tenant_for_user(self.request.user)
+        if tenant is not None:
+            qs = qs.filter(business__municipality=tenant)
+        return qs
     
     def get_permissions(self):
         if self.action in ['create']:

@@ -1,6 +1,7 @@
 ﻿from django.db import models
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
+from shared.tenant import get_tenant_upload_to
 
 class Municipality(models.Model):
     # Basic Info
@@ -9,10 +10,10 @@ class Municipality(models.Model):
     description = models.TextField('Descripcion', blank=True)
     slogan = models.CharField('Eslogan', max_length=200, blank=True)
     
-    # Branding
-    logo = models.ImageField('Logo', upload_to='tenants/logos/', blank=True, null=True)
-    favicon = models.ImageField('Favicon', upload_to='tenants/favicons/', blank=True, null=True)
-    banner = models.ImageField('Banner', upload_to='tenants/banners/', blank=True, null=True)
+    # Branding (cada municipio tiene su propia carpeta de media)
+    logo = models.ImageField('Logo', upload_to=get_tenant_upload_to('logos'), blank=True, null=True)
+    favicon = models.ImageField('Favicon', upload_to=get_tenant_upload_to('favicons'), blank=True, null=True)
+    banner = models.ImageField('Banner', upload_to=get_tenant_upload_to('banners'), blank=True, null=True)
     primary_color = models.CharField('Color Primario', max_length=7, default='#2563eb')
     secondary_color = models.CharField('Color Secundario', max_length=7, default='#7c3aed')
     accent_color = models.CharField('Color de Acento', max_length=7, default='#f59e0b')

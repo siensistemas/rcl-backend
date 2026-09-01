@@ -2,6 +2,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from apps.tenants.models import Municipality
+from shared.tenant import get_tenant_upload_to
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -27,10 +28,10 @@ class User(AbstractUser):
         null=True,
         blank=True,
         related_name='users'
-    )
+)
     phone = models.CharField('Telefono', max_length=20, validators=[phone_regex], blank=True)
-    avatar = models.ImageField('Avatar', upload_to='users/avatars/', blank=True, null=True)
-    cover = models.ImageField('Portada', upload_to='users/covers/', blank=True, null=True)
+    avatar = models.ImageField('Avatar', upload_to=get_tenant_upload_to('users/avatars'), blank=True, null=True)
+    cover = models.ImageField('Portada', upload_to=get_tenant_upload_to('users/covers'), blank=True, null=True)
     
     # Verification
     is_verified = models.BooleanField('Verificado', default=False)

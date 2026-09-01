@@ -1,5 +1,6 @@
 ﻿from django.contrib import admin
 from .models import Business, BusinessMedia, BusinessHours
+from shared.admin import TenantAdminMixin
 
 class BusinessMediaInline(admin.TabularInline):
     model = BusinessMedia
@@ -10,7 +11,7 @@ class BusinessHoursInline(admin.TabularInline):
     extra = 7
 
 @admin.register(Business)
-class BusinessAdmin(admin.ModelAdmin):
+class BusinessAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ['name', 'slug', 'municipality', 'category', 'owner', 'is_verified', 'is_active', 'views_count']
     list_filter = ['municipality', 'category', 'is_verified', 'is_active', 'is_featured']
     search_fields = ['name', 'slug', 'description', 'address']
@@ -53,12 +54,14 @@ class BusinessAdmin(admin.ModelAdmin):
     )
 
 @admin.register(BusinessMedia)
-class BusinessMediaAdmin(admin.ModelAdmin):
+class BusinessMediaAdmin(TenantAdminMixin, admin.ModelAdmin):
+    tenant_filter_path = 'business__municipality'
     list_display = ['business', 'media_type', 'title', 'is_cover', 'is_featured', 'views_count']
     list_filter = ['media_type', 'is_cover', 'is_featured']
     search_fields = ['title', 'description']
 
 @admin.register(BusinessHours)
-class BusinessHoursAdmin(admin.ModelAdmin):
+class BusinessHoursAdmin(TenantAdminMixin, admin.ModelAdmin):
+    tenant_filter_path = 'business__municipality'
     list_display = ['business', 'day', 'open_time', 'close_time', 'is_closed']
     list_filter = ['day', 'is_closed']
