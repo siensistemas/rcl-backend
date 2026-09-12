@@ -25,7 +25,7 @@ def enviar_email_verificacion(user_id, code):
         'code': code,
     })
     send_mail(
-        subject='Verifica tu email - Busca Me',
+        subject='Verifica tu email - RCL',
         message='Código: ' + code,
         html_message=html,
         recipient_list=[user.email],

@@ -1,35 +1,35 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   db:
     image: postgis/postgis:15-3.4
-    container_name: busca_me_db
+    container_name: rcl_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: busca_me_db
-      POSTGRES_USER: busca_me_user
+      POSTGRES_DB: rcl_db
+      POSTGRES_USER: rcl_user
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=es_CO.UTF-8'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - busca_me_network
+      - rcl_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U busca_me_user"]
+      test: ["CMD-SHELL", "pg_isready -U rcl_user"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: busca_me_redis
+    container_name: rcl_redis
     restart: unless-stopped
     networks:
-      - busca_me_network
+      - rcl_network
 
   backend:
     build: .
-    container_name: busca_me_backend
+    container_name: rcl_backend
     restart: unless-stopped
     command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
     environment:
@@ -47,11 +47,11 @@ services:
       redis:
         condition: service_started
     networks:
-      - busca_me_network
+      - rcl_network
 
   celery:
     build: .
-    container_name: busca_me_celery
+    container_name: rcl_celery
     restart: unless-stopped
     command: celery -A core worker --loglevel=info
     env_file:
@@ -60,11 +60,11 @@ services:
       - db
       - redis
     networks:
-      - busca_me_network
+      - rcl_network
 
   celery-beat:
     build: .
-    container_name: busca_me_celery_beat
+    container_name: rcl_celery_beat
     restart: unless-stopped
     command: celery -A core beat --loglevel=info
     env_file:
@@ -73,11 +73,11 @@ services:
       - db
       - redis
     networks:
-      - busca_me_network
+      - rcl_network
 
 volumes:
   postgres_data:
 
 networks:
-  busca_me_network:
+  rcl_network:
     driver: bridge

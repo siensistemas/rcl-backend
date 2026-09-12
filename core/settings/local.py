@@ -7,9 +7,9 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='busca_me_db'),
-        'USER': env('DB_USER', default='busca_me_user'),
-        'PASSWORD': env('DB_PASSWORD', default='busca_me_password'),
+        'NAME': env('DB_NAME', default='rcl_db'),
+        'USER': env('DB_USER', default='rcl_user'),
+        'PASSWORD': env('DB_PASSWORD', default='rcl_password'),
         'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default='5432'),
     }

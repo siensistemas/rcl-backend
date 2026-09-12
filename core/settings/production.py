@@ -12,12 +12,12 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
-# Reverse proxy (Nginx reverse proxy for www.siensistemas.com/busca_me/)
+# Reverse proxy (Nginx reverse proxy for www.siensistemas.com/rcl/)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
-# Served under a subpath (e.g. www.siensistemas.com/busca_me/)
+# Served under a subpath (e.g. www.siensistemas.com/rcl/)
 FORCE_SCRIPT_NAME = env('SCRIPT_NAME', default='')
 if FORCE_SCRIPT_NAME and FORCE_SCRIPT_NAME.endswith('/'):
     FORCE_SCRIPT_NAME = FORCE_SCRIPT_NAME.rstrip('/')

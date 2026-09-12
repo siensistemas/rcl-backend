@@ -47,6 +47,16 @@ LOCAL_APPS = [
     'apps.promotions',
     'apps.subscriptions',
     'apps.merchant',
+    'apps.events',
+    'apps.tourism',
+    'apps.jobs',
+    'apps.classifieds',
+    'apps.reels',
+    'apps.coupons',
+    'apps.notifications',
+    'apps.ratings',
+    'apps.analytics',
+    'apps.ads',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -89,9 +99,9 @@ ASGI_APPLICATION = 'core.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='busca_me_db'),
-        'USER': env('DB_USER', default='busca_me_user'),
-        'PASSWORD': env('DB_PASSWORD', default='busca_me_password'),
+        'NAME': env('DB_NAME', default='rcl_db'),
+        'USER': env('DB_USER', default='rcl_user'),
+        'PASSWORD': env('DB_PASSWORD', default='rcl_password'),
         'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default='5432'),
         'ATOMIC_REQUESTS': True,

@@ -1,4 +1,4 @@
-﻿# Busca Me - Backend
+﻿# RCL - Backend
 
 Plataforma SaaS Multi-Tenant para comercios locales.
 
@@ -16,7 +16,7 @@ Plataforma SaaS Multi-Tenant para comercios locales.
 ## Estructura del Proyecto
 
 \\\
-busca-me-backend/
+rcl-backend/
 â”œâ”€â”€ core/                      # Configuracion principal
 â”‚   â”œâ”€â”€ settings/
 â”‚   â”‚   â”œâ”€â”€ base.py           # Configuracion base
@@ -67,7 +67,7 @@ busca-me-backend/
 
 \\\ash
 git clone <repo>
-cd busca-me-backend
+cd rcl-backend
 
 # Crear entorno virtual
 python -m venv venv
@@ -86,7 +86,7 @@ cp .env.example .env
 
 \\\ash
 # Crear base de datos PostgreSQL
-createdb -U postgres busca_me_db
+createdb -U postgres rcl_db
 
 # Migrar
 python manage.py makemigrations
@@ -116,7 +116,7 @@ docker-compose up -d
 
 ## Despliegue
 
-Produccion (https://www.siensistemas.com/busca_me/): ver [deployment/DEPLOY.md](deployment/DEPLOY.md)
+Produccion (https://www.siensistemas.com/rcl/): ver [deployment/DEPLOY.md](deployment/DEPLOY.md)
 
 ## Endpoints Principales
 

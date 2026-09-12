@@ -3,30 +3,30 @@ version: '3.8'
 services:
   db:
     image: postgis/postgis:15-3.4
-    container_name: busca_me_db
+    container_name: rcl_db
     environment:
-      POSTGRES_DB: busca_me_db
-      POSTGRES_USER: busca_me_user
-      POSTGRES_PASSWORD: busca_me_password
+      POSTGRES_DB: rcl_db
+      POSTGRES_USER: rcl_user
+      POSTGRES_PASSWORD: rcl_password
       POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=es_CO.UTF-8'
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - busca_me_network
+      - rcl_network
 
   redis:
     image: redis:7-alpine
-    container_name: busca_me_redis
+    container_name: rcl_redis
     ports:
       - "6379:6379"
     networks:
-      - busca_me_network
+      - rcl_network
 
-backend:
+  backend:
     build: .
-    container_name: busca_me_backend
+    container_name: rcl_backend
     command: python manage.py runserver 0.0.0.0:8000
     environment:
       - RUN_INIT=1
@@ -42,11 +42,11 @@ backend:
       - db
       - redis
     networks:
-      - busca_me_network
+      - rcl_network
 
   celery:
     build: .
-    container_name: busca_me_celery
+    container_name: rcl_celery
     command: celery -A core worker --loglevel=info
     volumes:
       - .:/app
@@ -56,11 +56,11 @@ backend:
       - db
       - redis
     networks:
-      - busca_me_network
+      - rcl_network
 
   celery-beat:
     build: .
-    container_name: busca_me_celery_beat
+    container_name: rcl_celery_beat
     command: celery -A core beat --loglevel=info
     volumes:
       - .:/app
@@ -70,7 +70,7 @@ backend:
       - db
       - redis
     networks:
-      - busca_me_network
+      - rcl_network
 
 volumes:
   postgres_data:
@@ -78,5 +78,5 @@ volumes:
   media_volume:
 
 networks:
-  busca_me_network:
+  rcl_network:
     driver: bridge

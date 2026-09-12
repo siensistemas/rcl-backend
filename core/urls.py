@@ -8,7 +8,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Busca Me API",
+        title="RCL API",
         default_version='v1',
         description="""
         Plataforma SaaS Multi-Tenant para comercios locales.
@@ -59,6 +59,36 @@ api_v1_patterns = [
 
     # Merchant panel
     path('merchant/', include('apps.merchant.urls')),
+
+    # Events
+    path('events/', include('apps.events.urls')),
+
+    # Tourism
+    path('tourism/', include('apps.tourism.urls')),
+
+    # Jobs
+    path('jobs/', include('apps.jobs.urls')),
+
+    # Classifieds
+    path('classifieds/', include('apps.classifieds.urls')),
+
+    # Reels
+    path('reels/', include('apps.reels.urls')),
+
+    # Coupons
+    path('coupons/', include('apps.coupons.urls')),
+
+    # Notifications
+    path('notifications/', include('apps.notifications.urls')),
+
+    # Ratings
+    path('ratings/', include('apps.ratings.urls')),
+
+    # Analytics
+    path('analytics/', include('apps.analytics.urls')),
+
+    # Ads / Publicidad
+    path('ads/', include('apps.ads.urls')),
 ]
 
 urlpatterns = [
