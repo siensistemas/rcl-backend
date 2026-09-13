@@ -4,8 +4,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
-# Security
-SECURE_SSL_REDIRECT = True
+# Security - Cloudflare ya fuerza HTTPS; SECURE_SSL_REDIRECT lo causa loop
+SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
@@ -13,6 +13,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
 # Reverse proxy (Nginx reverse proxy for www.siensistemas.com/rcl/)
+# El header X-Forwarded-Proto se fuerza a 'https' en la location /rcl/ de nginx
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
@@ -21,6 +22,15 @@ USE_X_FORWARDED_PORT = True
 FORCE_SCRIPT_NAME = env('SCRIPT_NAME', default='')
 if FORCE_SCRIPT_NAME and FORCE_SCRIPT_NAME.endswith('/'):
     FORCE_SCRIPT_NAME = FORCE_SCRIPT_NAME.rstrip('/')
+
+# Static/Media URLs deben incluir el subpath (replicar patrón de control_empresas)
+if FORCE_SCRIPT_NAME:
+    STATIC_URL = FORCE_SCRIPT_NAME + '/static/'
+    MEDIA_URL = FORCE_SCRIPT_NAME + '/media/'
+
+# collectstatic escribe en 'staticfiles/' (coincide con nginx alias)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = []  # django.contrib.staticfiles solo usa STATIC_ROOT
 
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'https://www.siensistemas.com',
