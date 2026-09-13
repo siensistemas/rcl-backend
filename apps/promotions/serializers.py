@@ -15,3 +15,16 @@ class PromotionSerializer(serializers.ModelSerializer):
     
     def get_business_name(self, obj):
         return obj.business.name
+
+    def validate(self, attrs):
+        dtype = attrs.get('discount_type')
+        value = attrs.get('discount_value')
+        if value is not None and value < 0:
+            raise serializers.ValidationError(
+                {'discount_value': 'El valor del descuento no puede ser negativo.'}
+            )
+        if dtype == 'percentage' and value is not None and value > 100:
+            raise serializers.ValidationError(
+                {'discount_value': 'El porcentaje debe estar entre 1 y 100.'}
+            )
+        return attrs

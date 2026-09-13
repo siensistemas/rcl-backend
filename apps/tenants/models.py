@@ -85,8 +85,9 @@ class Municipality(models.Model):
 
     @property
     def total_events(self):
-        return self.events.filter(is_active=True).count()
+        return self.events.exclude(status='cancelled').count()
 
     @property
     def total_promotions(self):
         return self.promotions.filter(status='active').count()
+

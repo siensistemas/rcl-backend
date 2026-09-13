@@ -31,7 +31,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['register', 'login', 'verify_email']:
             return [permissions.AllowAny()]
-        elif self.action in ['change_password', 'me', 'update_profile']:
+        elif self.action in ['change_password', 'me', 'update_profile', 'logout']:
             return [permissions.IsAuthenticated()]
         return [permissions.IsAdminUser()]
     

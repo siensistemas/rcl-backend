@@ -9,6 +9,7 @@ class MerchantBusinessSerializer(serializers.ModelSerializer):
     que espera la app Flutter (merchant_business_model.dart)."""
 
     category = serializers.SerializerMethodField()
+    category_id = serializers.SerializerMethodField()
     latitude = serializers.FloatField(allow_null=True, default=None)
     longitude = serializers.FloatField(allow_null=True, default=None)
     logo_url = serializers.SerializerMethodField()
@@ -20,7 +21,7 @@ class MerchantBusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         fields = [
-            'id', 'name', 'description', 'category', 'address',
+            'id', 'name', 'description', 'category', 'category_id', 'address',
             'latitude', 'longitude', 'phone', 'website',
             'logo_url', 'cover_url', 'is_active', 'is_verified',
             'promotion_count', 'view_count', 'claim_count', 'created_at',
@@ -28,6 +29,9 @@ class MerchantBusinessSerializer(serializers.ModelSerializer):
 
     def get_category(self, obj):
         return obj.category.name if obj.category else None
+
+    def get_category_id(self, obj):
+        return obj.category_id
 
     def get_logo_url(self, obj):
         return obj.logo.url if obj.logo else None

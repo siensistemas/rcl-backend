@@ -1,4 +1,5 @@
 ﻿from rest_framework import serializers
+from shared.validators import validate_upload_size, MAX_IMAGE_SIZE_MB, MAX_REEL_SIZE_MB
 from .models import Business, BusinessMedia, BusinessHours
 
 class BusinessHoursSerializer(serializers.ModelSerializer):
@@ -12,6 +13,16 @@ class BusinessMediaSerializer(serializers.ModelSerializer):
         fields = ['id', 'media_type', 'file', 'thumbnail', 'title', 'description', 
                   'is_cover', 'is_featured', 'order', 'views_count', 'created_at']
         read_only_fields = ['views_count', 'created_at', 'updated_at']
+
+    def validate(self, attrs):
+        media_type = attrs.get('media_type') or getattr(self.instance, 'media_type', None) or 'image'
+        file = attrs.get('file')
+        if file is not None:
+            if media_type == 'video':
+                validate_upload_size(file, MAX_REEL_SIZE_MB, 'el video')
+            else:
+                validate_upload_size(file, MAX_IMAGE_SIZE_MB, 'la imagen')
+        return attrs
 
 class BusinessSerializer(serializers.ModelSerializer):
     media = BusinessMediaSerializer(many=True, read_only=True)
