@@ -40,3 +40,9 @@ class TouristRouteSerializer(serializers.ModelSerializer):
             return image
         validate_upload_size(image, MAX_IMAGE_SIZE_MB, 'la imagen de la ruta')
         return image
+
+    def get_municipality_name(self, obj):
+        return obj.municipality.name if obj.municipality else None
+
+    def get_image_url(self, obj):
+        return obj.image.url if obj.image else None
