@@ -57,7 +57,7 @@ class User(AbstractUser):
     linkedin = models.URLField('LinkedIn', blank=True)
     
     # Preferences
-    notification_preferences = models.JSONField('Preferencias de Notificacion', default=dict)
+    notification_preferences = models.JSONField('Preferencias de Notificacion', default=dict, blank=True)
     language = models.CharField('Idioma', max_length=10, default='es')
     theme = models.CharField('Tema', max_length=10, choices=(
         ('light', 'Claro'),
