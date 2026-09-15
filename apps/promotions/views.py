@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Promotion
 from .serializers import PromotionSerializer
 from shared.permissions import IsMerchant, IsOwner
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import resolve_request_tenant
 
 class PromotionViewSet(viewsets.ModelViewSet):
     serializer_class = PromotionSerializer
@@ -17,7 +17,7 @@ class PromotionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Promotion.objects.all()
-        tenant = resolve_tenant_for_user(self.request.user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(business__municipality=tenant)
         return qs

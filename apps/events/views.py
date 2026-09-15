@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Event
 from .serializers import EventSerializer
 from shared.permissions import IsAdminOrMerchant, IsOwnerOrAdmin
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import resolve_request_tenant
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -18,7 +18,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Event.objects.all()
-        tenant = resolve_tenant_for_user(self.request.user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(municipality=tenant)
         user = self.request.user

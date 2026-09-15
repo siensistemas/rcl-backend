@@ -10,7 +10,7 @@ from .serializers import (
     UserSerializer, UserRegistrationSerializer, UserLoginSerializer,
     UserUpdateSerializer, UserChangePasswordSerializer
 )
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import get_current_tenant, resolve_tenant_for_user
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -48,7 +48,14 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def register(self, request):
-        serializer = self.get_serializer(data=request.data)
+        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
+        # Un cliente registrandose solo (sin municipality en el payload) toma
+        # el municipio que eligio en la app via header X-Tenant-ID
+        if 'municipality' not in data:
+            tenant = get_current_tenant()
+            if tenant is not None:
+                data['municipality'] = tenant.id
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         refresh = RefreshToken.for_user(user)

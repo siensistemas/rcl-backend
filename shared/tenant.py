@@ -103,3 +103,19 @@ def resolve_tenant_for_user(user):
     if muni is not None and getattr(muni, 'is_active', False):
         return muni
     return None
+
+
+def resolve_request_tenant(request):
+    """Tenant efectivo para filtrar datos en una view.
+
+    Prioriza el tenant ya resuelto por TenantMiddleware (get_current_tenant),
+    que para usuarios anónimos/global_admin usa el header X-Tenant-ID
+    o el query param ?municipality=X, y para el resto el municipality
+    asignado al usuario. Como fallback (sin middleware), usa el
+    municipality del usuario autenticado.
+    """
+    tenant = get_current_tenant()
+    if tenant is not None:
+        return tenant
+    user = getattr(request, 'user', None)
+    return resolve_tenant_for_user(user)

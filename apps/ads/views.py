@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Ad
 from .serializers import AdSerializer
 from shared.permissions import IsMerchant
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import resolve_request_tenant, resolve_tenant_for_user
 
 
 class AdViewSet(viewsets.ModelViewSet):
@@ -36,7 +36,7 @@ class AdViewSet(viewsets.ModelViewSet):
             )
         else:
             qs = Ad.objects.filter(status='active', start_date__lte=now, end_date__gte=now)
-        tenant = resolve_tenant_for_user(user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(municipality=tenant)
         return qs

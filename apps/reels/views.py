@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Reel
 from .serializers import ReelSerializer
 from shared.permissions import IsMerchant
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import resolve_request_tenant, resolve_tenant_for_user
 
 
 class ReelViewSet(viewsets.ModelViewSet):
@@ -24,7 +24,7 @@ class ReelViewSet(viewsets.ModelViewSet):
             qs = Reel.objects.filter(Q(status='published') | Q(business__owner=user))
         else:
             qs = Reel.objects.filter(status='published')
-        tenant = resolve_tenant_for_user(user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(municipality=tenant)
         return qs

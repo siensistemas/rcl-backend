@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Business, BusinessMedia, BusinessHours
 from .serializers import BusinessSerializer, BusinessCreateSerializer, BusinessUpdateSerializer, BusinessMediaSerializer
 from shared.permissions import IsMerchant, IsOwner, IsVerified
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import resolve_request_tenant
 
 
 class BusinessViewSet(viewsets.ModelViewSet):
@@ -19,7 +19,7 @@ class BusinessViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Business.objects.filter(is_active=True, is_approved=True)
-        tenant = resolve_tenant_for_user(self.request.user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(municipality=tenant)
         return qs

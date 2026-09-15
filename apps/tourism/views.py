@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Attraction, TouristRoute
 from .serializers import AttractionSerializer, TouristRouteSerializer
 from shared.permissions import IsAdminOrMerchant, IsAdmin
-from shared.tenant import resolve_tenant_for_user
+from shared.tenant import resolve_request_tenant, resolve_tenant_for_user
 
 
 class AttractionViewSet(viewsets.ModelViewSet):
@@ -19,7 +19,7 @@ class AttractionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Attraction.objects.all()
-        tenant = resolve_tenant_for_user(self.request.user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(municipality=tenant)
         user = self.request.user
@@ -75,7 +75,7 @@ class TouristRouteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = TouristRoute.objects.annotate(attraction_count=models.Count('attractions'))
-        tenant = resolve_tenant_for_user(self.request.user)
+        tenant = resolve_request_tenant(self.request)
         if tenant is not None:
             qs = qs.filter(municipality=tenant)
         return qs
