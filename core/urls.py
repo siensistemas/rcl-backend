@@ -89,6 +89,9 @@ api_v1_patterns = [
 
     # Ads / Publicidad
     path('ads/', include('apps.ads.urls')),
+
+    # Privacy / Legal (consentimientos, derechos, exportacion, eliminacion)
+    path('privacy/', include('apps.legal.urls')),
 ]
 
 urlpatterns = [
