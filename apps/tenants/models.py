@@ -42,7 +42,7 @@ class Municipality(models.Model):
     timezone = models.CharField('Zona Horaria', max_length=50, default='America/Bogota')
     
     # Configuration
-    config = models.JSONField('Configuracion', default=dict)
+    config = models.JSONField('Configuracion', default=dict, blank=True)
     is_active = models.BooleanField('Activo', default=True)
     is_public = models.BooleanField('Publico', default=True)
     
