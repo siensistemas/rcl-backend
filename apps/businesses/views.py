@@ -1,5 +1,6 @@
 ﻿from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.db.models import Q, Avg, Count
 from django_filters.rest_framework import DjangoFilterBackend
@@ -39,6 +40,11 @@ class BusinessViewSet(viewsets.ModelViewSet):
         return BusinessSerializer
 
     def perform_create(self, serializer):
+        if Business.objects.filter(owner=self.request.user, is_active=True).exists():
+            raise ValidationError(
+                'Ya tienes un comercio registrado. Cada comerciante '
+                'solo puede tener un comercio.'
+            )
         serializer.save(owner=self.request.user)
 
     @action(detail=False, methods=['get'])

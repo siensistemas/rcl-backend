@@ -60,6 +60,11 @@ class MerchantViewSet(viewsets.ViewSet):
         return Response({'results': serializer.data})
 
     def create(self, request):
+        if Business.objects.filter(owner=request.user, is_active=True).exists():
+            raise ValidationError(
+                {'business': 'Ya tienes un comercio registrado. Cada comerciante '
+                             'solo puede tener un comercio.'}
+            )
         data = self._mutable_data(request)
         data.setdefault('municipality', self._default_municipality_id(request.user))
         serializer = BusinessCreateSerializer(data=data)
