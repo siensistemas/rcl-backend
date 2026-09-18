@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -11,8 +12,8 @@ from django.contrib.auth.password_validation import validate_password
 
 from apps.ads.models import Ad
 from apps.ads.serializers import AdSerializer
-from apps.businesses.models import Business
-from apps.businesses.serializers import BusinessCreateSerializer
+from apps.businesses.models import Business, BusinessMedia
+from apps.businesses.serializers import BusinessCreateSerializer, BusinessMediaSerializer
 from apps.classifieds.models import Classified
 from apps.classifieds.serializers import ClassifiedSerializer
 from apps.events.models import Event
@@ -30,6 +31,7 @@ from apps.users.models import User
 from apps.users.serializers import UserSerializer
 from shared.permissions import IsMerchant
 from shared.tenant import resolve_tenant_for_user
+from shared.validators import validate_upload_size, validate_reel_video, MAX_IMAGE_SIZE_MB
 
 from .serializers import MerchantBusinessSerializer
 
@@ -50,6 +52,8 @@ class MerchantViewSet(viewsets.ViewSet):
     def get_permissions(self):
         if self.action == 'register':
             return [permissions.AllowAny()]
+        if self.action in ('create', 'list', 'stats'):
+            return [permissions.IsAuthenticated()]
         return [permissions.IsAuthenticated(), IsMerchant()]
 
     # ---- Gestión de comercios ----
@@ -65,11 +69,82 @@ class MerchantViewSet(viewsets.ViewSet):
                 {'business': 'Ya tienes un comercio registrado. Cada comerciante '
                              'solo puede tener un comercio.'}
             )
+
         data = self._mutable_data(request)
+        image = data.get('image')
+        reel_video = data.get('reel_video')
+        ad_image = data.get('ad_image')
+        reel_title = (data.get('reel_title') or '').strip()
+        ad_title = (data.get('ad_title') or '').strip()
+
+        missing = []
+        if not image:
+            missing.append('image')
+        if not reel_video:
+            missing.append('reel_video')
+        if not reel_title:
+            missing.append('reel_title')
+        if not ad_image:
+            missing.append('ad_image')
+        if not ad_title:
+            missing.append('ad_title')
+        if missing:
+            raise ValidationError(
+                {'registration': 'La imagen del comercio, el reel (video y título) y '
+                                 'la publicidad (imagen y título) son obligatorios. '
+                                 f'Faltan: {", ".join(missing)}.'}
+            )
+
+        validate_upload_size(image, MAX_IMAGE_SIZE_MB, 'la imagen del comercio')
+        validate_upload_size(ad_image, MAX_IMAGE_SIZE_MB, 'la imagen de la publicidad')
+        validate_reel_video(reel_video)
+
         data.setdefault('municipality', self._default_municipality_id(request.user))
         serializer = BusinessCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        business = serializer.save(owner=request.user)
+        municipality = resolve_tenant_for_user(request.user) or self._default_municipality(request.user)
+
+        try:
+            with transaction.atomic():
+                business = serializer.save(owner=request.user, logo=image)
+
+                BusinessMedia.objects.create(
+                    business=business,
+                    media_type='image',
+                    file=image,
+                    title='Portada',
+                    is_cover=True,
+                )
+
+                Reel.objects.create(
+                    business=business,
+                    municipality=municipality,
+                    title=reel_title,
+                    description=(data.get('reel_description') or '').strip(),
+                    video=reel_video,
+                    status='published',
+                )
+
+                Ad.objects.create(
+                    business=business,
+                    municipality=municipality,
+                    title=ad_title,
+                    description=(data.get('ad_description') or '').strip(),
+                    ad_type='banner',
+                    placement='home',
+                    image=ad_image,
+                    target_url=(data.get('ad_target_url') or '').strip(),
+                    start_date=timezone.now(),
+                    end_date=timezone.now() + timezone.timedelta(days=30),
+                    status='active',
+                )
+        except Exception:
+            raise
+
+        if request.user.role != 'merchant':
+            request.user.role = 'merchant'
+            request.user.save(update_fields=['role'])
+
         return Response(
             MerchantBusinessSerializer(business).data,
             status=status.HTTP_201_CREATED,
