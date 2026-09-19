@@ -2,7 +2,7 @@
 import struct
 import tempfile
 
-from django.core.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError
 
 # Límites por defecto
 MAX_IMAGE_SIZE_MB = 5
